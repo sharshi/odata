@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>OData.Testing</RootNamespace>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>OData.Testing</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>sharshi</Authors>
+    <Description>Comprehensive integration testing for ASP.NET Core OData endpoints. Generates hundreds of query permutations across $filter, $select, $expand, $orderby, $top, $skip, $count, $apply, and $compute to verify the full C# → EF Core → SQL → OData response pipeline.</Description>
+    <PackageTags>odata;testing;integration-testing;aspnetcore;efcore;sql-server;query-testing</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.11" />
+    <PackageReference Include="xunit.core" Version="2.7.0" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>
