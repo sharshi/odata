@@ -133,14 +133,13 @@ public class ODataTestServer<TContext> : IAsyncDisposable, IDisposable
 
                     mvcBuilder.AddOData(opt =>
                     {
-                        opt.AddRouteComponents(_options.RoutePrefix, edmModel)
-                           .Select()
+                        opt.AddRouteComponents(_options.RoutePrefix, edmModel);
+                        opt.Select()
                            .Filter()
                            .Expand()
                            .OrderBy()
                            .Count()
-                           .SetMaxTop(_options.MaxTop)
-                           .SkipToken();
+                           .SetMaxTop(_options.MaxTop);
                     });
 
                     // Add the controller naming convention
@@ -228,6 +227,7 @@ internal static class DynamicControllerState<TContext> where TContext : DbContex
 /// <summary>
 /// Generic OData controller that serves any entity set using DbContext.Set&lt;TEntity&gt;().
 /// Dynamically registered for each entity set in the EDM model.
+/// No explicit [HttpGet] — OData convention routing handles method dispatch.
 /// </summary>
 [GenericControllerNameConvention]
 public class TestODataController<TEntity> : ODataController where TEntity : class
@@ -240,15 +240,13 @@ public class TestODataController<TEntity> : ODataController where TEntity : clas
     }
 
     [EnableQuery(MaxExpansionDepth = 10, MaxTop = 1000, MaxAnyAllExpressionDepth = 5, MaxNodeCount = 200)]
-    [HttpGet]
     public IActionResult Get()
     {
         return Ok(_db.Set<TEntity>());
     }
 
     [EnableQuery(MaxExpansionDepth = 10, MaxTop = 1000)]
-    [HttpGet]
-    public IActionResult Get([FromRoute] int key)
+    public IActionResult Get(int key)
     {
         var entity = _db.Set<TEntity>().Find(key);
         return entity == null ? NotFound() : Ok(entity);
