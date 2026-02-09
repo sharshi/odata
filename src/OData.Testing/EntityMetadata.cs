@@ -17,6 +17,11 @@ public class EntityMetadata
     public string EntitySetName { get; set; } = string.Empty;
 
     /// <summary>
+    /// The OData route prefix for this entity set (e.g., "odata", "v1/task").
+    /// </summary>
+    public string RoutePrefix { get; set; } = string.Empty;
+
+    /// <summary>
     /// The primary key property name(s).
     /// </summary>
     public List<PropertyMetadata> KeyProperties { get; set; } = new();

@@ -19,9 +19,12 @@ public class ODataQueryGenerator
     /// Creates a generator for the given entity type and entity set name.
     /// Extracts metadata via reflection.
     /// </summary>
-    public static ODataQueryGenerator ForEntity<TEntity>(string entitySetName) where TEntity : class
+    /// <param name="entitySetName">The OData entity set name (e.g., "Products").</param>
+    /// <param name="routePrefix">The OData route prefix (e.g., "odata", "v1/task"). Defaults to "odata".</param>
+    public static ODataQueryGenerator ForEntity<TEntity>(string entitySetName, string routePrefix = "odata") where TEntity : class
     {
         var metadata = EntityMetadataExtractor.Extract(typeof(TEntity), entitySetName);
+        metadata.RoutePrefix = routePrefix;
         return new ODataQueryGenerator(metadata);
     }
 
@@ -29,9 +32,13 @@ public class ODataQueryGenerator
     /// Creates a generator for the given entity type and entity set name.
     /// Extracts metadata via reflection.
     /// </summary>
-    public static ODataQueryGenerator ForEntity(Type entityType, string entitySetName)
+    /// <param name="entityType">The CLR entity type.</param>
+    /// <param name="entitySetName">The OData entity set name (e.g., "Products").</param>
+    /// <param name="routePrefix">The OData route prefix (e.g., "odata", "v1/task"). Defaults to "odata".</param>
+    public static ODataQueryGenerator ForEntity(Type entityType, string entitySetName, string routePrefix = "odata")
     {
         var metadata = EntityMetadataExtractor.Extract(entityType, entitySetName);
+        metadata.RoutePrefix = routePrefix;
         return new ODataQueryGenerator(metadata);
     }
 
@@ -64,85 +71,85 @@ public class ODataQueryGenerator
     // ── Per-Category Generation ──
 
     public IEnumerable<QueryTestCase> GenerateAllFilters() =>
-        FilterGenerators.GenerateAll(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateAll(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterComparison() =>
-        FilterGenerators.GenerateComparison(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateComparison(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterLogical() =>
-        FilterGenerators.GenerateLogical(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateLogical(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterArithmetic() =>
-        FilterGenerators.GenerateArithmetic(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateArithmetic(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterStringFunctions() =>
-        FilterGenerators.GenerateStringFunctions(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateStringFunctions(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterDateFunctions() =>
-        FilterGenerators.GenerateDateFunctions(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateDateFunctions(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterMathFunctions() =>
-        FilterGenerators.GenerateMathFunctions(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateMathFunctions(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterLambda() =>
-        FilterGenerators.GenerateLambda(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateLambda(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterNull() =>
-        FilterGenerators.GenerateNull(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateNull(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterIn() =>
-        FilterGenerators.GenerateIn(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateIn(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterNavigationProperty() =>
-        FilterGenerators.GenerateNavigationProperty(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateNavigationProperty(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateFilterSpecialCharacters() =>
-        FilterGenerators.GenerateSpecialCharacters(_metadata);
+        WithRoutePrefix(FilterGenerators.GenerateSpecialCharacters(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllSelects() =>
-        SelectGenerator.GenerateAll(_metadata);
+        WithRoutePrefix(SelectGenerator.GenerateAll(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllExpands() =>
-        ExpandGenerator.GenerateAll(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateAll(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandSingle() =>
-        ExpandGenerator.GenerateSingle(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateSingle(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandMultiple() =>
-        ExpandGenerator.GenerateMultiple(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateMultiple(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandNestedFilter() =>
-        ExpandGenerator.GenerateNestedFilter(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateNestedFilter(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandNestedSelect() =>
-        ExpandGenerator.GenerateNestedSelect(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateNestedSelect(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandNestedOrderBy() =>
-        ExpandGenerator.GenerateNestedOrderBy(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateNestedOrderBy(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandMultiLevel() =>
-        ExpandGenerator.GenerateMultiLevel(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateMultiLevel(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateExpandCombinedNested() =>
-        ExpandGenerator.GenerateCombinedNested(_metadata);
+        WithRoutePrefix(ExpandGenerator.GenerateCombinedNested(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllOrderBys() =>
-        OrderByGenerator.GenerateAll(_metadata);
+        WithRoutePrefix(OrderByGenerator.GenerateAll(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllPaging() =>
-        PagingGenerators.GenerateAll(_metadata);
+        WithRoutePrefix(PagingGenerators.GenerateAll(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllCounts() =>
-        CountGenerator.GenerateAll(_metadata);
+        WithRoutePrefix(CountGenerator.GenerateAll(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllApply() =>
-        AggregationGenerators.GenerateAllApply(_metadata);
+        WithRoutePrefix(AggregationGenerators.GenerateAllApply(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllCompute() =>
-        AggregationGenerators.GenerateAllCompute(_metadata);
+        WithRoutePrefix(AggregationGenerators.GenerateAllCompute(_metadata));
 
     public IEnumerable<QueryTestCase> GenerateAllCombinations() =>
-        CombinationGenerator.GenerateAll(_metadata);
+        WithRoutePrefix(CombinationGenerator.GenerateAll(_metadata));
 
     // ── Utility ──
 
@@ -175,5 +182,17 @@ public class ODataQueryGenerator
     public static IEnumerable<object[]> AsTheoryData(IEnumerable<QueryTestCase> testCases)
     {
         return testCases.Select(tc => new object[] { tc });
+    }
+
+    /// <summary>
+    /// Sets the RoutePrefix on each generated test case from the entity metadata.
+    /// </summary>
+    private IEnumerable<QueryTestCase> WithRoutePrefix(IEnumerable<QueryTestCase> cases)
+    {
+        foreach (var tc in cases)
+        {
+            tc.RoutePrefix = _metadata.RoutePrefix;
+            yield return tc;
+        }
     }
 }

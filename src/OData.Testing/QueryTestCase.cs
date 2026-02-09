@@ -33,6 +33,12 @@ public class QueryTestCase : IXunitSerializable
     public string SubCategory { get; set; } = string.Empty;
 
     /// <summary>
+    /// The OData route prefix for this entity set (e.g., "odata", "v1/task").
+    /// Used to build the request URL: /{RoutePrefix}/{EntitySet}?{QueryString}
+    /// </summary>
+    public string RoutePrefix { get; set; } = string.Empty;
+
+    /// <summary>
     /// Whether this test expects a successful (2xx) response. Defaults to true.
     /// </summary>
     public bool ExpectSuccess { get; set; } = true;
@@ -75,6 +81,7 @@ public class QueryTestCase : IXunitSerializable
         QueryString = info.GetValue<string>(nameof(QueryString));
         Category = info.GetValue<string>(nameof(Category));
         SubCategory = info.GetValue<string>(nameof(SubCategory));
+        RoutePrefix = info.GetValue<string>(nameof(RoutePrefix));
         ExpectSuccess = info.GetValue<bool>(nameof(ExpectSuccess));
         ExpectCount = info.GetValue<bool>(nameof(ExpectCount));
     }
@@ -86,6 +93,7 @@ public class QueryTestCase : IXunitSerializable
         info.AddValue(nameof(QueryString), QueryString);
         info.AddValue(nameof(Category), Category);
         info.AddValue(nameof(SubCategory), SubCategory);
+        info.AddValue(nameof(RoutePrefix), RoutePrefix);
         info.AddValue(nameof(ExpectSuccess), ExpectSuccess);
         info.AddValue(nameof(ExpectCount), ExpectCount);
     }

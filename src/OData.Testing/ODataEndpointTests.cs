@@ -141,14 +141,18 @@ public abstract class ODataEndpointTests<TContext> : IAsyncLifetime
     /// <summary>
     /// Execute a single OData query test case and validate the response.
     /// This is the primary method to call from [Theory] test methods.
+    /// Uses the test case's RoutePrefix if set, otherwise falls back to the class-level RoutePrefix.
     /// </summary>
     protected async Task RunTestAsync(QueryTestCase testCase)
     {
         // Reset client evaluation tracking
         _clientEvalInterceptor?.Reset();
 
-        // Build the request URL
-        var url = $"/{RoutePrefix}/{testCase.EntitySet}?{testCase.QueryString}";
+        // Build the request URL - prefer test case RoutePrefix, fall back to class-level
+        var prefix = !string.IsNullOrEmpty(testCase.RoutePrefix)
+            ? testCase.RoutePrefix.TrimStart('/').TrimEnd('/')
+            : RoutePrefix;
+        var url = $"/{prefix}/{testCase.EntitySet}?{testCase.QueryString}";
 
         // Execute the query
         var response = await Client.GetAsync(url);

@@ -89,12 +89,13 @@ internal class ODataTestStartup<TContext> where TContext : DbContext
             opt.Select().Filter().Expand().OrderBy().Count().SetMaxTop(options.MaxTop);
         });
 
-        // Register the controller naming convention that renames generic controllers
-        // to match entity set names (e.g., TestODataController<Product> → "Products")
-        services.Configure<MvcOptions>(mvcOpt =>
-        {
-            mvcOpt.Conventions.Add(new GenericControllerModelConvention(entitySetMappings));
-        });
+        // CRITICAL FIX: Use IApplicationModelProvider (Order=-200) instead of IControllerModelConvention.
+        // OData 8's ODataRoutingApplicationModelProvider runs at Order=-100 and matches controller names
+        // to entity set names. IControllerModelConvention runs AFTER all providers, so by the time it
+        // renames "TestODataController" to "Products", OData has already processed and rejected it.
+        // By using a provider at Order=-200, we rename BEFORE OData processes the controllers.
+        services.AddSingleton<IApplicationModelProvider>(
+            new GenericControllerRenamingProvider(entitySetMappings));
 
         options.ConfigureServices?.Invoke(services);
     }
@@ -224,30 +225,43 @@ public class TestODataController<TEntity> : ODataController where TEntity : clas
 }
 
 /// <summary>
-/// MVC convention that renames closed-generic TestODataController types
-/// to match their OData entity set names.
-/// Not generic — receives the mapping dictionary directly to avoid static state issues.
+/// Renames closed-generic TestODataController types to match their OData entity set names
+/// BEFORE OData's routing provider processes them.
+///
+/// OData 8's ODataRoutingApplicationModelProvider runs at Order=-100 and matches controllers
+/// by name to entity sets. By running at Order=-200, this provider renames generic controllers
+/// (e.g., "TestODataController`1" → "Products") so OData can correctly recognize them.
 /// </summary>
-internal class GenericControllerModelConvention : IControllerModelConvention
+internal class GenericControllerRenamingProvider : IApplicationModelProvider
 {
     private readonly Dictionary<Type, string> _entitySetMappings;
 
-    public GenericControllerModelConvention(Dictionary<Type, string> entitySetMappings)
+    public GenericControllerRenamingProvider(Dictionary<Type, string> entitySetMappings)
     {
         _entitySetMappings = entitySetMappings;
     }
 
-    public void Apply(ControllerModel controller)
-    {
-        if (!controller.ControllerType.IsGenericType) return;
-        if (controller.ControllerType.GetGenericTypeDefinition() != typeof(TestODataController<>)) return;
+    /// <summary>
+    /// Run before OData's ODataRoutingApplicationModelProvider (Order=-100).
+    /// </summary>
+    public int Order => -200;
 
-        var entityType = controller.ControllerType.GenericTypeArguments[0];
-        if (_entitySetMappings.TryGetValue(entityType, out var entitySetName))
+    public void OnProvidersExecuting(ApplicationModelProviderContext context)
+    {
+        foreach (var controller in context.Result.Controllers)
         {
-            controller.ControllerName = entitySetName;
+            if (!controller.ControllerType.IsGenericType) continue;
+            if (controller.ControllerType.GetGenericTypeDefinition() != typeof(TestODataController<>)) continue;
+
+            var entityType = controller.ControllerType.GenericTypeArguments[0];
+            if (_entitySetMappings.TryGetValue(entityType, out var entitySetName))
+            {
+                controller.ControllerName = entitySetName;
+            }
         }
     }
+
+    public void OnProvidersExecuted(ApplicationModelProviderContext context) { }
 }
 
 /// <summary>
