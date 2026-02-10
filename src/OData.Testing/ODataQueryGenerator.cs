@@ -10,6 +10,11 @@ public class ODataQueryGenerator
 {
     private readonly EntityMetadata _metadata;
 
+    /// <summary>
+    /// The entity metadata used by this generator. Useful for inspecting discovered properties.
+    /// </summary>
+    public EntityMetadata Metadata => _metadata;
+
     public ODataQueryGenerator(EntityMetadata metadata)
     {
         _metadata = metadata;

@@ -172,4 +172,26 @@ public abstract class ODataAppTests<TStartup> : IAsyncLifetime
         };
         ODataAssert.AssertSuccessStatusCode(response, testCase);
     }
+
+    // ── Static helpers for ODataTestSuite integration ──
+
+    /// <summary>
+    /// Generate xUnit [MemberData] from an ODataTestSuite with configurable density.
+    /// Convenience method so you can wire up one [Theory] to test your entire OData setup.
+    /// <code>
+    /// public static IEnumerable&lt;object[]&gt; AllCases =>
+    ///     GenerateTheoryData(rc =>
+    ///     {
+    ///         rc.Add("v1/client/payer/benefits", benefitsModel);
+    ///         rc.Add("v1/task", taskModel);
+    ///         rc.Add("v1", mainModel);
+    ///     });
+    /// </code>
+    /// </summary>
+    protected static IEnumerable<object[]> GenerateTheoryData(
+        Action<RouteComponentBuilder> configure,
+        TestDensity density = TestDensity.Balanced)
+    {
+        return ODataTestSuite.FromRouteComponents(configure).AsTheoryData(density);
+    }
 }
